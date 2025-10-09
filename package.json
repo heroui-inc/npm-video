@@ -15,12 +15,14 @@
     "deploy-composition": "remotion lambda sites create src/video/index.ts --site-name=remotion-npm-downloads"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "3.787.0",
     "@heroui/button": "^2.2.27",
     "@heroui/card": "^2.2.25",
     "@heroui/dropdown": "^2.3.27",
     "@heroui/input": "^2.4.28",
     "@heroui/select": "^2.4.28",
     "@heroui/spinner": "^2.2.24",
+    "@heroui/switch": "^2.2.24",
     "@heroui/system": "^2.4.23",
     "@heroui/theme": "^2.4.23",
     "@heroui/use-theme": "2.1.10",
@@ -32,7 +34,6 @@
     "@react-aria/ssr": "^3.9.10",
     "@react-aria/visually-hidden": "^3.8.28",
     "@react-hook/size": "^2.1.2",
-    "@aws-sdk/client-s3": "3.787.0",
     "@remotion/lambda": "4.0.356",
     "@remotion/player": "4.0.356",
     "@remotion/tailwind": "4.0.356",
