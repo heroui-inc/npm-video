@@ -205,9 +205,8 @@ export function PackageForm({
             </PopoverContent>
           </Popover>
         </div>
-
         <Button variant="bordered" type="submit" className="flex-1">
-          Generate video
+          Submit
         </Button>
       </div>
       <div className="text-sm text-foreground-500 [&_a]:underline">

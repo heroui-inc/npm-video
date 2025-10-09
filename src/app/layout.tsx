@@ -55,7 +55,7 @@ export default function RootLayout({children}: {children: React.ReactNode}) {
               </div>
             </div>
           </header>
-          <main className="py-8 md:py-16 lg:py-20 flex-1 flex flex-col gap-8 justify-center items-center w-full">
+          <main className="py-8 md:py-16 lg:py-20 flex-1 flex flex-col gap-8 justify-center items-center w-full px-4">
             {children}
           </main>
         </Providers>

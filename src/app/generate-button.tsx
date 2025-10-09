@@ -9,6 +9,8 @@ import {useState} from "react";
 
 import {generateVideo, getVideoGenerationProgress} from "@/app/actions";
 import {delay} from "@/lib/utils";
+import {Iconify} from "@/components/iconify";
+import {Spinner} from "@heroui/spinner";
 
 type State =
   | {type: "initial"}
@@ -31,14 +33,14 @@ export function GenerateButton({
     const packageName = inputProps.packageName ?? inputProps.displayName ?? "package";
 
     return (
-      <form action="/download" method="GET">
+      <form action="/download" method="GET" className="w-full">
         <input type="hidden" name="renderId" value={state.renderId} />
         <input type="hidden" name="bucketName" value={state.bucketName} />
         <input type="hidden" name="packageName" value={packageName} />
         <Button
           type="submit"
           color="primary"
-          className="font-medium"
+          className="font-medium w-full"
           style={
             primaryColor
               ? {
@@ -57,6 +59,7 @@ export function GenerateButton({
   return (
     <Button
       color="primary"
+      spinner={<Spinner size="sm" />}
       className="font-medium"
       style={
         primaryColor
@@ -96,6 +99,7 @@ export function GenerateButton({
           setState({type: "error"});
         }
       }}
+      isLoading={state.type === "pending" || state.type === "started"}
       isDisabled={!inputProps || state.type === "pending" || state.type === "started"}
     >
       {state.type === "pending" || state.type === "started"

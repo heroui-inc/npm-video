@@ -1,10 +1,10 @@
-# 🎞️ NPM Downloads Video 📈
+# NPM Downloads Video
 
 Generate beautiful animated videos that highlight your npm package download trends.
 
 ## Example output
 
-![Example output](public/example.gif)
+![Example output](public/example.png)
 
 ## Stack
 
