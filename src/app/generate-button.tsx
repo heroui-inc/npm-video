@@ -70,7 +70,7 @@ export function GenerateButton({
   return (
     <Button
       color="primary"
-      spinner={<Spinner size="sm" />}
+      spinner={<Spinner size="sm" color="current" />}
       className="font-medium"
       style={
         primaryColor

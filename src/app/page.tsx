@@ -35,7 +35,7 @@ export default async function Home({
         <Suspense
           key={`${packageName}-${timeRange}-${primaryColor}-${secondaryColor}`}
           fallback={
-            <div className="w-full h-full flex items-center justify-center">
+            <div className="w-full h-full min-h-[200px] flex items-center justify-center">
               <Spinner />
             </div>
           }
