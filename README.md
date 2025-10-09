@@ -6,11 +6,6 @@ Generate beautiful animated videos that highlight your npm package download tren
 
 ![Example output](public/example.gif)
 
-## TODO
-
-- [ ] Share on X/Twitter button
-- [ ] Posthog analytics
-
 ## Stack
 
 - [Remotion](https://www.remotion.dev/) to create the video (and [Remotion Lambda](https://www.remotion.dev/docs/lambda/api) to generate it in AWS)
@@ -22,6 +17,10 @@ Generate beautiful animated videos that highlight your npm package download tren
 ## Contribute
 
 If you want to suggest a feature or report a problem, feel free to open an issue or even a pull request 😉.
+
+## Credits
+
+This project is based on [GitHub Stars Video](https://github.com/scastiel/github-stars-video) by [Sebastien Castiel](https://scastiel.dev/?ref=github-stars). Thank you for the inspiration and the excellent foundation! ⭐
 
 ## License
 
