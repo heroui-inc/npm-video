@@ -92,7 +92,7 @@ export default function RootLayout({children}: {children: React.ReactNode}) {
                 rel="noreferrer noopener"
                 className="hover:opacity-80 transition-opacity"
               >
-                <HeroLogo height={24} />
+                <HeroLogo height={24} autoResize={false} />
                 <span className="sr-only">HeroUI</span>
               </a>
             </div>
