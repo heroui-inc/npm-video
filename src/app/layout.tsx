@@ -84,7 +84,7 @@ export default function RootLayout({children}: {children: React.ReactNode}) {
         </Providers>
         <footer className="w-full mt-auto">
           <div className="container mx-auto px-4 py-6 flex justify-center items-center gap-2 flex-col text-center text-sm">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 opacity-50">
               <span>Powered by</span>
               <a
                 href="https://heroui.com?ref=npmvideo.com"
@@ -92,7 +92,7 @@ export default function RootLayout({children}: {children: React.ReactNode}) {
                 rel="noreferrer noopener"
                 className="hover:opacity-80 transition-opacity"
               >
-                <HeroLogo />
+                <HeroLogo height={24} />
                 <span className="sr-only">HeroUI</span>
               </a>
             </div>
