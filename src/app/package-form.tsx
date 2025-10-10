@@ -96,12 +96,16 @@ const PACKAGE_COLOR_MAPPINGS: PackageColorMapping[] = [
     colors: {primary: "#3b82f6", secondary: "#2563eb"},
   },
   {
-    keywords: ["vue"],
+    keywords: ["vue", "supabase"],
     colors: {primary: "#22c55e", secondary: "#10b981"},
   },
   {
     keywords: ["vite", "t3"],
     colors: {primary: "#a855f7", secondary: "#9333ea"},
+  },
+  {
+    keywords: ["instant"],
+    colors: {primary: "#f97316", secondary: "#ea580c"},
   },
 ];
 
