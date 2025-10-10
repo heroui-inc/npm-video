@@ -101,6 +101,10 @@ export function GenerateButton({
                 renderId,
               });
               setState({type: "done", renderId, bucketName});
+              posthog.capture("video_downloaded", {
+                package: packageName,
+                renderId,
+              });
               router.push(
                 `/download?renderId=${renderId}&bucketName=${bucketName}&packageName=${encodeURIComponent(
                   packageName,
