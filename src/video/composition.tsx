@@ -1,7 +1,7 @@
 import type {Props} from "./schema";
 
 import NumberFlow, {continuous} from "@number-flow/react";
-import {adjustHue, darken, getLuminance, lighten, transparentize} from "color2k";
+import {darken, getLuminance, lighten, transparentize} from "color2k";
 import {useMemo} from "react";
 import {AbsoluteFill, Easing, interpolate, useCurrentFrame, useVideoConfig} from "remotion";
 
@@ -26,10 +26,7 @@ export function NpmDownloadsComposition({
 }: Props) {
   const luminance = getLuminance(primaryColor);
 
-  const complementaryPrimaryColor = adjustHue(
-    transparentize(primaryColor, luminance >= 0.7 ? 0.7 : luminance >= 0.5 ? 0.5 : 0.8),
-    10,
-  );
+  const complementaryPrimaryColor = transparentize(primaryColor, luminance >= 0.7 ? 0.8 : 0.5);
   const backgroundColor = darken(primaryColor, 0.9);
 
   // Calculate appropriate font size based on package name length

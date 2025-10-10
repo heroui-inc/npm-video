@@ -241,6 +241,9 @@ export function PackageForm({
             setHasManualColorSelection(false);
             setPackageSpecifier(value);
           }}
+          onFocus={(e) => {
+            e.target.select();
+          }}
         />
         <Select
           label="Time range"
@@ -283,7 +286,7 @@ export function PackageForm({
                     {primary: "#DADADA", secondary: "#A1A1AA"},
                     {primary: "#eab308", secondary: "#ca8a04"},
                     {primary: "#06b6d4", secondary: "#0891b2"},
-                    {primary: "#f87171", secondary: "#ef4444"},
+                    {primary: "#f25252", secondary: "#ef4444"},
                   ].map((colors, idx) => {
                     const isSelected =
                       primaryColor === colors.primary && secondaryColor === colors.secondary;
