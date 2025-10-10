@@ -32,6 +32,17 @@ export function NpmDownloadsComposition({
   );
   const backgroundColor = darken(primaryColor, 0.9);
 
+  // Calculate appropriate font size based on package name length
+  const titleFontSize = useMemo(() => {
+    const length = displayName.length;
+    if (length <= 15) return 64;
+    if (length <= 20) return 56;
+    if (length <= 25) return 48;
+    if (length <= 30) return 42;
+    if (length <= 35) return 38;
+    return 34;
+  }, [displayName]);
+
   return (
     <AbsoluteFill style={{backgroundColor}}>
       <AbsoluteFill
@@ -53,7 +64,12 @@ export function NpmDownloadsComposition({
               <span className="uppercase tracking-[0.4em] text-xs text-white/60">
                 npm downloads
               </span>
-              <h1 className="text-[64px] leading-none font-bold tracking-tight text-white">
+              <h1
+                className="leading-none font-bold tracking-tight text-white"
+                style={{
+                  fontSize: `${titleFontSize}px`,
+                }}
+              >
                 {displayName}
               </h1>
               <div className="flex flex-wrap items-center gap-2 text-lg text-white/80 max-w-[480px]">
