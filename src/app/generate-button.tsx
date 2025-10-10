@@ -7,7 +7,7 @@ import {Spinner} from "@heroui/spinner";
 import {readableColor} from "color2k";
 import {useRouter} from "next/navigation";
 import posthog from "posthog-js";
-import {useState} from "react";
+import {useEffect, useRef, useState} from "react";
 
 import {generateVideo, getVideoGenerationProgress} from "@/app/actions";
 import {delay} from "@/lib/utils";
@@ -28,6 +28,14 @@ export function GenerateButton({
 }) {
   const [state, setState] = useState<State>({type: "initial"});
   const router = useRouter();
+  const isCancelledRef = useRef(false);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      isCancelledRef.current = true;
+    };
+  }, []);
 
   if (inputProps && state.type === "done") {
     const packageName = inputProps.packageName ?? inputProps.displayName ?? "package";
@@ -91,10 +99,24 @@ export function GenerateButton({
 
           setState({type: "pending"});
           const {renderId, bucketName} = await generateVideo(inputProps);
+
+          // Check if component was unmounted during the async operation
+          if (isCancelledRef.current) return;
+
           setState({type: "started", renderId, bucketName});
-          do {
+
+          // Poll for completion with cancellation support
+          while (!isCancelledRef.current) {
             await delay(5000);
+
+            // Check again after delay
+            if (isCancelledRef.current) return;
+
             const result = await getVideoGenerationProgress(renderId, bucketName);
+
+            // Check again after async operation
+            if (isCancelledRef.current) return;
+
             if (result.done) {
               posthog.capture("video_generation_completed", {
                 package: packageName,
@@ -120,11 +142,12 @@ export function GenerateButton({
               setState({type: "error"});
               break;
             }
-            // eslint-disable-next-line no-constant-condition
-          } while (true);
+          }
         } catch (err) {
           console.error(err);
-          setState({type: "error"});
+          if (!isCancelledRef.current) {
+            setState({type: "error"});
+          }
         }
       }}
       isLoading={state.type === "pending" || state.type === "started"}
