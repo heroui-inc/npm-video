@@ -1,7 +1,7 @@
 import type {Props} from "./schema";
 
 import NumberFlow, {continuous} from "@number-flow/react";
-import {adjustHue, darken, lighten, transparentize} from "color2k";
+import {adjustHue, darken, getLuminance, lighten, transparentize} from "color2k";
 import {useMemo} from "react";
 import {AbsoluteFill, Easing, interpolate, useCurrentFrame, useVideoConfig} from "remotion";
 
@@ -24,10 +24,13 @@ export function NpmDownloadsComposition({
   primaryColor = "#22c55e",
   secondaryColor = "#10b981",
 }: Props) {
-  const complementaryPrimaryColor = adjustHue(transparentize(primaryColor, 0.4), 25);
-  const backgroundColor = darken(primaryColor, 0.7);
+  const luminance = getLuminance(primaryColor);
 
-  console.log({history: downloadsHistory});
+  const complementaryPrimaryColor = adjustHue(
+    transparentize(primaryColor, luminance >= 0.7 ? 0.7 : luminance >= 0.5 ? 0.5 : 0.4),
+    10,
+  );
+  const backgroundColor = darken(primaryColor, 0.9);
 
   return (
     <AbsoluteFill style={{backgroundColor}}>
@@ -53,14 +56,16 @@ export function NpmDownloadsComposition({
               <h1 className="text-[64px] leading-none font-bold tracking-tight text-white">
                 {displayName}
               </h1>
-              <div className="flex flex-wrap items-center gap-2 text-lg text-white/80">
-                {description && <p className="max-w-3xl text-white/70 text-xl">{description}</p>}
+              <div className="flex flex-wrap items-center gap-2 text-lg text-white/80 max-w-[480px]">
+                {description && (
+                  <p className="max-w-3xl text-white/70 text-xl truncate">{description}</p>
+                )}
                 {publisher && (
                   <span
                     className="px-3 py-1 rounded-full border"
                     style={{
                       color: lighten(primaryColor, 0.2),
-                      backgroundColor: darken(primaryColor, 0.38),
+                      backgroundColor: transparentize(primaryColor, 0.9),
                       borderColor: darken(primaryColor, 0.38),
                     }}
                   >
@@ -320,8 +325,6 @@ function prepareChart(history: Props["downloadsHistory"]): ChartData {
 }
 
 function formatDownloads(value: number) {
-  console.log({value});
-
   return new Intl.NumberFormat("en-US", {
     notation: "compact",
   }).format(value);

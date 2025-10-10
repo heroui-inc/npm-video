@@ -8,15 +8,15 @@ import {env} from "@/lib/env";
 import {Providers} from "./providers";
 import "./globals.css";
 
-import {HeroUILogo} from "@/components/heroui-logo";
+import {Logo as HeroLogo} from "@/components/hero-logo";
 import {GitHubIcon} from "@/components/github";
 
 export const metadata: Metadata = {
   metadataBase: new URL(env.NEXT_PUBLIC_BASE_URL),
-  title: "NPM Downloads Video",
+  title: "NPM Video",
   description: "Show off your npm package downloads with a vibrant animated video.",
   openGraph: {
-    title: "NPM Downloads Video",
+    title: "NPM Video",
     description: "Show off your npm package downloads with a vibrant animated video.",
     images: `/banner.png`,
     type: "website",
@@ -27,7 +27,7 @@ export const metadata: Metadata = {
     creator: "@hero_ui",
     site: "@hero_ui",
     images: `/banner.png`,
-    title: "NPM Downloads Video",
+    title: "NPM Video",
     description: "Show off your npm package downloads with a vibrant animated video.",
   },
 };
@@ -39,7 +39,30 @@ export default function RootLayout({children}: {children: React.ReactNode}) {
         <Providers themeProps={{attribute: "class", defaultTheme: "dark"}}>
           <header className="w-full">
             <div className="container mx-auto px-4 py-3 flex justify-between items-center">
-              <h1 className="text-lg font-semibold">NPM Downloads Video</h1>
+              <div className="flex items-center gap-2">
+                <a rel="noopener" target="_blank" href="https://heroui.com?ref=npmvideo.com">
+                  <HeroLogo isCompact isotipoHeight={26} />
+                </a>
+                <svg
+                  data-testid="geist-icon"
+                  height="16"
+                  stroke-linejoin="round"
+                  className="text-default-300"
+                  style={{width: "16px", height: "16px"}}
+                  viewBox="0 0 16 16"
+                  width="16"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    clip-rule="evenodd"
+                    d="M4.01526 15.3939L4.3107 14.7046L10.3107 0.704556L10.6061 0.0151978L11.9849 0.606077L11.6894 1.29544L5.68942 15.2954L5.39398 15.9848L4.01526 15.3939Z"
+                    fill="currentColor"
+                  ></path>
+                </svg>
+
+                <h1 className="text-md font-semibold uppercase">NPM Video</h1>
+              </div>
+
               <div className="flex items-center gap-2">
                 <Button
                   variant="light"
@@ -69,7 +92,7 @@ export default function RootLayout({children}: {children: React.ReactNode}) {
                 rel="noreferrer noopener"
                 className="hover:opacity-80 transition-opacity"
               >
-                <HeroUILogo />
+                <HeroLogo />
                 <span className="sr-only">HeroUI</span>
               </a>
             </div>

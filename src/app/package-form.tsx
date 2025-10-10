@@ -7,7 +7,7 @@ import {Select, SelectItem} from "@heroui/select";
 import {cn} from "@heroui/theme";
 import Link from "next/link";
 import {useRouter} from "next/navigation";
-import {useState} from "react";
+import {useEffect, useMemo, useState} from "react";
 import posthog from "posthog-js";
 import {Iconify} from "@/components/iconify";
 
@@ -34,6 +34,87 @@ function normalizePackageSpecifier(input: string) {
   }
 
   return trimmed.replace(/^npm:/, "");
+}
+
+function isValidPackageName(input: string) {
+  const value = input.trim();
+
+  if (!value) {
+    return false;
+  }
+
+  if (value.length > 214) {
+    return false;
+  }
+
+  if (value.startsWith(".") || value.startsWith("_")) {
+    return false;
+  }
+
+  const npmPackagePattern = /^(?:@[a-z0-9-~][a-z0-9-._~]*\/)?[a-z0-9-~][a-z0-9-._~]*$/;
+
+  if (!npmPackagePattern.test(value)) {
+    return false;
+  }
+
+  const blacklist = ["node_modules", "favicon.ico"];
+
+  if (blacklist.includes(value)) {
+    return false;
+  }
+
+  return true;
+}
+
+type PackageColorMapping = {
+  keywords: string[];
+  colors: {
+    primary: string;
+    secondary: string;
+  };
+};
+
+const PACKAGE_COLOR_MAPPINGS: PackageColorMapping[] = [
+  {
+    keywords: ["heroui", "hero"],
+    colors: {primary: "#22c55e", secondary: "#10b981"},
+  },
+  {
+    keywords: ["react-native"],
+    colors: {primary: "#06b6d4", secondary: "#0891b2"},
+  },
+  {
+    keywords: ["tailwind"],
+    colors: {primary: "#06b6d4", secondary: "#0891b2"},
+  },
+  {
+    keywords: ["next"],
+    colors: {primary: "#DADADA", secondary: "#A1A1AA"},
+  },
+  {
+    keywords: ["react"],
+    colors: {primary: "#3b82f6", secondary: "#2563eb"},
+  },
+  {
+    keywords: ["vue"],
+    colors: {primary: "#22c55e", secondary: "#10b981"},
+  },
+  {
+    keywords: ["vite", "t3"],
+    colors: {primary: "#a855f7", secondary: "#9333ea"},
+  },
+];
+
+function getAutoColors(packageName: string) {
+  const value = packageName.toLowerCase();
+
+  for (const mapping of PACKAGE_COLOR_MAPPINGS) {
+    if (mapping.keywords.some((keyword) => value.includes(keyword))) {
+      return mapping.colors;
+    }
+  }
+
+  return null;
 }
 
 export const timeRanges = [
@@ -63,26 +144,61 @@ export function PackageForm({
   const [timeRange, setTimeRange] = useState(initialTimeRange);
   const [primaryColor, setPrimaryColor] = useState(initialPrimaryColor);
   const [secondaryColor, setSecondaryColor] = useState(initialSecondaryColor);
+  const [hasManualColorSelection, setHasManualColorSelection] = useState(false);
+  const {normalizedValue: normalizedPackageName, isInvalid: isPackageInvalid} = useMemo(() => {
+    const trimmed = packageSpecifier.trim();
+
+    if (!trimmed) {
+      return {normalizedValue: "", isInvalid: false};
+    }
+
+    const normalized = normalizePackageSpecifier(packageSpecifier) ?? trimmed;
+
+    return {
+      normalizedValue: normalized,
+      isInvalid: !isValidPackageName(normalized),
+    };
+  }, [packageSpecifier]);
+
+  useEffect(() => {
+    if (!normalizedPackageName || hasManualColorSelection) {
+      return;
+    }
+
+    const autoColors = getAutoColors(normalizedPackageName);
+
+    if (!autoColors) {
+      return;
+    }
+
+    const {primary, secondary} = autoColors;
+
+    if (primary !== primaryColor || secondary !== secondaryColor) {
+      setPrimaryColor(primary);
+      setSecondaryColor(secondary);
+    }
+  }, [normalizedPackageName, hasManualColorSelection, primaryColor, secondaryColor]);
 
   return (
     <form
       className="flex flex-col gap-4 w-full"
       onSubmit={(event) => {
         event.preventDefault();
-        const cleanPackage = normalizePackageSpecifier(packageSpecifier) ?? packageSpecifier.trim();
-        if (!cleanPackage) {
+        if (isPackageInvalid || !normalizedPackageName) {
           return;
         }
 
-        setPackageSpecifier(cleanPackage);
+        if (normalizedPackageName !== packageSpecifier) {
+          setPackageSpecifier(normalizedPackageName);
+        }
 
         posthog.capture("package_submitted", {
-          package: cleanPackage,
+          package: normalizedPackageName,
           timeRange,
         });
 
         const params = new URLSearchParams({
-          package: cleanPackage,
+          package: normalizedPackageName,
           timeRange,
           primaryColor,
           secondaryColor,
@@ -104,8 +220,14 @@ export function PackageForm({
           autoComplete="off"
           autoCorrect="off"
           isRequired
+          color={isPackageInvalid ? "danger" : "default"}
+          errorMessage={isPackageInvalid ? "Please enter a valid npm package name" : undefined}
+          isInvalid={isPackageInvalid}
           value={packageSpecifier}
-          onValueChange={(value) => setPackageSpecifier(value)}
+          onValueChange={(value) => {
+            setHasManualColorSelection(false);
+            setPackageSpecifier(value);
+          }}
         />
         <Select
           label="Time range"
@@ -169,6 +291,7 @@ export function PackageForm({
                           "--item-secondary-color": colors.secondary,
                         }}
                         onClick={() => {
+                          setHasManualColorSelection(true);
                           setPrimaryColor(colors.primary);
                           setSecondaryColor(colors.secondary);
                         }}
@@ -189,7 +312,12 @@ export function PackageForm({
             </PopoverContent>
           </Popover>
         </div>
-        <Button variant="bordered" type="submit" className="flex-1">
+        <Button
+          variant="bordered"
+          type="submit"
+          className="flex-1"
+          isDisabled={isPackageInvalid || !normalizedPackageName}
+        >
           Submit
         </Button>
       </div>
@@ -197,14 +325,20 @@ export function PackageForm({
         Try{" "}
         <Link
           href="?package=heroui-native&timeRange=2-years"
-          onClick={() => setPackageSpecifier("heroui-native")}
+          onClick={() => {
+            setHasManualColorSelection(false);
+            setPackageSpecifier("heroui-native");
+          }}
         >
           heroui-native
         </Link>{" "}
         or{" "}
         <Link
           href="?package=@heroui/react&timeRange=2-years"
-          onClick={() => setPackageSpecifier("@heroui/react")}
+          onClick={() => {
+            setHasManualColorSelection(false);
+            setPackageSpecifier("@heroui/react");
+          }}
         >
           @heroui/react
         </Link>

@@ -1,4 +1,4 @@
-# NPM Downloads Video
+# NPM Video
 
 Generate beautiful animated videos that highlight your npm package download trends.
 

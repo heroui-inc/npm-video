@@ -40,6 +40,7 @@
     "@remotion/tailwind-v4": "4.0.356",
     "@tailwindcss/postcss": "4.1.14",
     "@total-typescript/ts-reset": "^0.5.1",
+    "babel-plugin-react-compiler": "^1.0.0",
     "clsx": "^2.0.0",
     "color2k": "^2.0.3",
     "framer-motion": "^11.18.2",
