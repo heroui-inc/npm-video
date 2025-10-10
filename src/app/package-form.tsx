@@ -89,7 +89,7 @@ const PACKAGE_COLOR_MAPPINGS: PackageColorMapping[] = [
     colors: {primary: "#06b6d4", secondary: "#0891b2"},
   },
   {
-    keywords: ["next", "expo", "react-email", "resend", "radix"],
+    keywords: ["next", "expo", "react-email", "resend", "radix", "mastra"],
     colors: {primary: "#DADADA", secondary: "#A1A1AA"},
   },
   {
