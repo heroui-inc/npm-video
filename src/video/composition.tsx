@@ -27,7 +27,7 @@ export function NpmDownloadsComposition({
   const luminance = getLuminance(primaryColor);
 
   const complementaryPrimaryColor = adjustHue(
-    transparentize(primaryColor, luminance >= 0.7 ? 0.7 : luminance >= 0.5 ? 0.5 : 0.4),
+    transparentize(primaryColor, luminance >= 0.7 ? 0.7 : luminance >= 0.5 ? 0.5 : 0.8),
     10,
   );
   const backgroundColor = darken(primaryColor, 0.9);
@@ -40,6 +40,7 @@ export function NpmDownloadsComposition({
     if (length <= 25) return 48;
     if (length <= 30) return 42;
     if (length <= 35) return 38;
+
     return 34;
   }, [displayName]);
 
@@ -52,9 +53,8 @@ export function NpmDownloadsComposition({
         ${darken(complementaryPrimaryColor, 0.6)} 35%,
         ${darken(complementaryPrimaryColor, 0.9)} 70%,
           rgba(0, 0, 0, 1) 100%)`,
-          // @ts-ignore
+          // @ts-expect-error it's ok
           "--primary-color": primaryColor,
-          // @ts-ignore
           "--secondary-color": secondaryColor,
         }}
       >
@@ -91,7 +91,7 @@ export function NpmDownloadsComposition({
               </div>
             </header>
             <aside className="w-[full flex flex-col justify-between">
-              <DownloadsCounter downloads={downloadsTotal} primaryColor={primaryColor} />
+              <DownloadsCounter downloads={downloadsTotal} />
             </aside>
           </div>
           <div className="flex flex-1 gap-12">
@@ -114,7 +114,7 @@ export function NpmDownloadsComposition({
   );
 }
 
-function DownloadsCounter({downloads, primaryColor}: {downloads: number; primaryColor: string}) {
+function DownloadsCounter({downloads}: {downloads: number}) {
   const frame = useCurrentFrame();
   const {fps} = useVideoConfig();
 

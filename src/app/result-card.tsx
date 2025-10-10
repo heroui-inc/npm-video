@@ -5,7 +5,6 @@ import {GenerateButton} from "@/app/generate-button";
 
 export function ResultCard({
   children,
-  className,
   inputProps,
   primaryColor,
 }: {

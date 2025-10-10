@@ -3,15 +3,14 @@
 import type {Props} from "@/video/schema";
 
 import {Button} from "@heroui/button";
+import {Spinner} from "@heroui/spinner";
 import {readableColor} from "color2k";
 import {useRouter} from "next/navigation";
-import {useState} from "react";
 import posthog from "posthog-js";
+import {useState} from "react";
 
 import {generateVideo, getVideoGenerationProgress} from "@/app/actions";
 import {delay} from "@/lib/utils";
-import {Iconify} from "@/components/iconify";
-import {Spinner} from "@heroui/spinner";
 
 type State =
   | {type: "initial"}
@@ -117,6 +116,7 @@ export function GenerateButton({
               setState({type: "error"});
               break;
             }
+            // eslint-disable-next-line no-constant-condition
           } while (true);
         } catch (err) {
           console.error(err);

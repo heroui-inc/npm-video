@@ -7,8 +7,9 @@ import {Select, SelectItem} from "@heroui/select";
 import {cn} from "@heroui/theme";
 import Link from "next/link";
 import {useRouter} from "next/navigation";
-import {useEffect, useMemo, useState} from "react";
 import posthog from "posthog-js";
+import {useEffect, useMemo, useState} from "react";
+
 import {Iconify} from "@/components/iconify";
 
 // Moved from actions since it doesn't need to be a server action
@@ -106,6 +107,14 @@ const PACKAGE_COLOR_MAPPINGS: PackageColorMapping[] = [
   {
     keywords: ["instant"],
     colors: {primary: "#f97316", secondary: "#ea580c"},
+  },
+  {
+    keywords: ["react-router"],
+    colors: {primary: "#f97316", secondary: "#ea580c"},
+  },
+  {
+    keywords: ["react-aria"],
+    colors: {primary: "#f87171", secondary: "#ef4444"},
   },
 ];
 
@@ -274,7 +283,7 @@ export function PackageForm({
                     {primary: "#DADADA", secondary: "#A1A1AA"},
                     {primary: "#eab308", secondary: "#ca8a04"},
                     {primary: "#06b6d4", secondary: "#0891b2"},
-                    {primary: "#ec4899", secondary: "#db2777"},
+                    {primary: "#f87171", secondary: "#ef4444"},
                   ].map((colors, idx) => {
                     const isSelected =
                       primaryColor === colors.primary && secondaryColor === colors.secondary;
@@ -289,9 +298,8 @@ export function PackageForm({
                             isSelected,
                         })}
                         style={{
-                          // @ts-ignore
+                          // @ts-expect-error it's ok
                           "--item-primary-color": colors.primary,
-                          // @ts-ignore
                           "--item-secondary-color": colors.secondary,
                         }}
                         onClick={() => {

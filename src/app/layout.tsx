@@ -1,15 +1,15 @@
+/* eslint-disable import/order */
 import type {Metadata} from "next";
 
 import {Button} from "@heroui/button";
 
+import {GitHubIcon} from "@/components/github";
+import {Logo as HeroLogo} from "@/components/hero-logo";
 import {ThemeToggle} from "@/components/theme-toggle";
 import {env} from "@/lib/env";
 
 import {Providers} from "./providers";
 import "./globals.css";
-
-import {Logo as HeroLogo} from "@/components/hero-logo";
-import {GitHubIcon} from "@/components/github";
 
 export const metadata: Metadata = {
   metadataBase: new URL(env.NEXT_PUBLIC_BASE_URL),

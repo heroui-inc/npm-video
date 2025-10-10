@@ -173,12 +173,15 @@ export async function getNpmDownloadsInfo(
     if (lastDailyPoint) {
       const lastDate = new Date(`${lastDailyPoint.day}T00:00:00.000Z`);
       const lastMonthKey = `${lastDate.getUTCFullYear()}-${String(lastDate.getUTCMonth() + 1).padStart(2, "0")}`;
-      const lastDayOfMonth = new Date(Date.UTC(lastDate.getUTCFullYear(), lastDate.getUTCMonth() + 1, 0)).getUTCDate();
+      const lastDayOfMonth = new Date(
+        Date.UTC(lastDate.getUTCFullYear(), lastDate.getUTCMonth() + 1, 0),
+      ).getUTCDate();
 
       if (lastDate.getUTCDate() < lastDayOfMonth) {
         filteredMonthlyHistory = aggregatedMonthlyHistory.filter((point) => {
           const pointDate = new Date(`${point.day}T00:00:00.000Z`);
           const pointMonthKey = `${pointDate.getUTCFullYear()}-${String(pointDate.getUTCMonth() + 1).padStart(2, "0")}`;
+
           return pointMonthKey !== lastMonthKey;
         });
       }
