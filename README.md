@@ -2,6 +2,8 @@
 
 Generate beautiful animated videos that highlight your npm package download trends.
 
+🌐 **Live Demo**: [npmvideo.com](https://npmvideo.com)
+
 ## Example output
 
 ![Example output](public/example.png)
