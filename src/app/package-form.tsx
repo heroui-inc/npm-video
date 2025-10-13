@@ -8,7 +8,7 @@ import {cn} from "@heroui/theme";
 import Link from "next/link";
 import {useRouter} from "next/navigation";
 import posthog from "posthog-js";
-import {useEffect, useMemo, useState} from "react";
+import {useEffect, useMemo, useRef, useState, type Key} from "react";
 
 import {Iconify} from "@/components/iconify";
 
@@ -158,6 +158,13 @@ export function PackageForm({
   const [primaryColor, setPrimaryColor] = useState(initialPrimaryColor);
   const [secondaryColor, setSecondaryColor] = useState(initialSecondaryColor);
   const [hasManualColorSelection, setHasManualColorSelection] = useState(false);
+  const [isSearching, setIsSearching] = useState(false);
+  const [searchResults, setSearchResults] = useState<
+    Array<{name: string; version?: string; description?: string}>
+  >([]);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const inputContainerRef = useRef<HTMLDivElement>(null);
+  const [suggestionsOpen, setSuggestionsOpen] = useState(false);
   const {normalizedValue: normalizedPackageName, isInvalid: isPackageInvalid} = useMemo(() => {
     const trimmed = packageSpecifier.trim();
 
@@ -192,6 +199,81 @@ export function PackageForm({
     }
   }, [normalizedPackageName, hasManualColorSelection, primaryColor, secondaryColor]);
 
+  // Debounced npm search for suggestions
+  useEffect(() => {
+    const query = packageSpecifier.trim();
+
+    if (!query || query.length < 2) {
+      setSearchResults([]);
+      setIsSearching(false);
+      setSuggestionsOpen(false);
+      return;
+    }
+
+    setIsSearching(true);
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(async () => {
+      try {
+        const url = new URL("https://registry.npmjs.org/-/v1/search");
+        url.searchParams.set("text", query);
+        url.searchParams.set("size", "8");
+
+        const res = await fetch(url.toString(), {
+          signal: controller.signal,
+          headers: {
+            "Accept": "application/json",
+          },
+        });
+
+        if (!res.ok) throw new Error("Failed to fetch suggestions");
+        type NpmSearchResponse = {
+          objects: Array<{
+            package: {name: string; version?: string; description?: string};
+          }>;
+        };
+        const data = (await res.json()) as NpmSearchResponse;
+
+        const items = (data.objects || []).map((o) => ({
+          name: o.package.name,
+          version: o.package.version,
+          description: o.package.description,
+        }));
+
+        setSearchResults(items);
+        setSuggestionsOpen(items.length > 0);
+      } catch (e) {
+        if (!(e instanceof DOMException && e.name === "AbortError")) {
+          setSearchResults([]);
+        }
+      } finally {
+        setIsSearching(false);
+        if (query.length >= 2 && (searchResults.length === 0)) {
+          setSuggestionsOpen(false);
+        }
+      }
+    }, 300);
+
+    return () => {
+      controller.abort();
+      clearTimeout(timeoutId);
+    };
+  }, [packageSpecifier]);
+
+  // Close suggestions when clicking outside the input container
+  useEffect(() => {
+    if (!suggestionsOpen) return;
+    function handleDocumentMouseDown(event: MouseEvent) {
+      const container = inputContainerRef.current;
+      if (!container) return;
+      if (!container.contains(event.target as Node)) {
+        setSuggestionsOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleDocumentMouseDown, true);
+    return () => document.removeEventListener("mousedown", handleDocumentMouseDown, true);
+  }, [suggestionsOpen]);
+
   return (
     <form
       className="flex flex-col gap-4 w-full"
@@ -219,40 +301,98 @@ export function PackageForm({
         router.push(`/?${params.toString()}`);
       }}
     >
-      <div className="flex gap-2">
-        <Input
-          id="package"
-          name="package"
-          label="NPM package"
-          placeholder="e.g. @heroui/react"
-          className="text-[1rem] flex-1"
-          classNames={{
-            inputWrapper: "dark:bg-default-100/60",
-          }}
-          autoCapitalize="off"
-          autoComplete="off"
-          autoCorrect="off"
-          isRequired
-          color={isPackageInvalid ? "danger" : "default"}
-          errorMessage={isPackageInvalid ? "Please enter a valid npm package name" : undefined}
-          isInvalid={isPackageInvalid}
-          value={packageSpecifier}
-          onValueChange={(value) => {
-            setHasManualColorSelection(false);
-            setPackageSpecifier(value);
-          }}
-          onFocus={(e) => {
-            e.target.select();
-          }}
-        />
+      <div className="flex flex-col gap-2 sm:flex-row">
+        <div className="flex-1 relative" ref={inputContainerRef}>
+          <Input
+            id="package"
+            name="package"
+            label="NPM package"
+            placeholder="e.g. @heroui/react"
+            className="text-[1rem] flex-1"
+            classNames={{
+              inputWrapper: "dark:bg-default-100/60",
+            }}
+            autoCapitalize="off"
+            autoComplete="off"
+            autoCorrect="off"
+            isRequired
+            color={isPackageInvalid ? "danger" : "default"}
+            errorMessage={isPackageInvalid ? "Please enter a valid npm package name" : undefined}
+            isInvalid={isPackageInvalid}
+            value={packageSpecifier}
+            ref={inputRef}
+            onValueChange={(value: string) => {
+              setHasManualColorSelection(false);
+              setPackageSpecifier(value);
+              if (value.trim().length < 2) {
+                setSuggestionsOpen(false);
+              }
+            }}
+            onChange={(e) => {
+              const value = (e.target as HTMLInputElement).value;
+              setHasManualColorSelection(false);
+              setPackageSpecifier(value);
+              if (value.trim().length < 2) {
+                setSuggestionsOpen(false);
+              }
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "Escape") {
+                setSuggestionsOpen(false);
+              }
+            }}
+          />
+          {suggestionsOpen && (
+            <div className="absolute z-50 mt-2 w-full rounded-medium border border-default-200 bg-content1 shadow-medium p-0 max-h-80 overflow-auto">
+              {isSearching ? (
+                <div className="p-3 text-sm text-foreground-500 flex items-center gap-2">
+                  <Iconify icon="loader-2" className="w-4 h-4 animate-spin" />
+                  Searching npm…
+                </div>
+              ) : searchResults.length === 0 ? (
+                <div className="p-3 text-sm text-foreground-500">No results</div>
+              ) : (
+                <ul className="divide-y divide-default-200">
+                  {searchResults.map((item) => (
+                    <li key={item.name}>
+                      <button
+                        type="button"
+                        className="w-full text-left p-3 hover:bg-default-100 focus:bg-default-100 outline-none"
+                        onMouseDown={(e) => {
+                          // keep input focused to avoid edit issues
+                          e.preventDefault();
+                        }}
+                        onClick={() => {
+                          setPackageSpecifier(item.name);
+                          setSearchResults([]);
+                          setSuggestionsOpen(false);
+                        }}
+                      >
+                        <div className="flex items-center gap-2">
+                          <span className="font-medium">{item.name}</span>
+                          {item.version ? (
+                            <span className="text-xs text-foreground-500">v{item.version}</span>
+                          ) : null}
+                        </div>
+                        {item.description ? (
+                          <div className="text-xs text-foreground-500 line-clamp-2">{item.description}</div>
+                        ) : null}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          )}
+        </div>
         <Select
           label="Time range"
-          className="max-w-[150px]"
+          className="w-full sm:max-w-[150px]"
           classNames={{
             trigger: "dark:bg-default-100/60",
           }}
           selectedKeys={[timeRange]}
-          onSelectionChange={(keys) => setTimeRange(Array.from(keys)[0] as string)}
+          onSelectionChange={(keys: Iterable<Key>) => setTimeRange(Array.from(keys)[0] as string)}
         >
           {timeRanges.map((range) => (
             <SelectItem key={range.key}>{range.label}</SelectItem>

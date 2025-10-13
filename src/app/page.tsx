@@ -1,8 +1,8 @@
 import {Spinner} from "@heroui/spinner";
 import {Suspense} from "react";
+import CompositionPlayerClient from "@/app/composition-player.client";
 
 import {getNpmDownloadsInfo} from "@/app/actions";
-import {CompositionPlayer} from "@/app/composition-player";
 import {ErrorCard} from "@/app/error-card";
 import {PackageForm} from "@/app/package-form";
 import {ResultCard} from "@/app/result-card";
@@ -79,7 +79,7 @@ async function PackageResult({
           }}
           primaryColor={primaryColor}
         >
-          <CompositionPlayer
+          <CompositionPlayerClient
             inputProps={{
               ...inputProps,
               primaryColor,
