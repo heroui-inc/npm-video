@@ -1,17 +1,19 @@
-import {Card, CardBody, CardHeader} from "@heroui/card";
+"use client";
+
+import {Card} from "@heroui/react";
 
 export function ErrorCard({packageName}: {packageName: string}) {
   return (
-    <Card className="bg-content1 w-full h-full">
-      <CardHeader className="pb-2">
-        <h3 className="text-lg font-semibold">Error</h3>
-        <p className="text-sm text-foreground-500">Package not found</p>
-      </CardHeader>
-      <CardBody>
+    <Card className="w-full h-full">
+      <Card.Header>
+        <Card.Title>Error</Card.Title>
+        <Card.Description>Package not found</Card.Description>
+      </Card.Header>
+      <Card.Content>
         <p>
           It looks like the package you entered (<strong>{packageName}</strong>) does not exist.
         </p>
-      </CardBody>
+      </Card.Content>
     </Card>
   );
 }

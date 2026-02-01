@@ -1,4 +1,3 @@
-import {Spinner} from "@heroui/spinner";
 import {Suspense} from "react";
 
 import {getNpmDownloadsInfo} from "@/app/actions";
@@ -6,6 +5,7 @@ import {CompositionPlayer} from "@/app/composition-player";
 import {ErrorCard} from "@/app/error-card";
 import {PackageForm} from "@/app/package-form";
 import {ResultCard} from "@/app/result-card";
+import {LoadingSpinner} from "@/components/loading-spinner";
 
 export default async function Home({
   searchParams,
@@ -34,11 +34,7 @@ export default async function Home({
       <div className="flex-1 min-h-0">
         <Suspense
           key={`${packageName}-${timeRange}-${primaryColor}-${secondaryColor}`}
-          fallback={
-            <div className="w-full h-full min-h-[200px] flex items-center justify-center">
-              <Spinner />
-            </div>
-          }
+          fallback={<LoadingSpinner />}
         >
           <PackageResult
             packageName={packageName}
