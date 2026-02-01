@@ -1,76 +1,46 @@
 "use client";
 
-import type {SwitchProps} from "@heroui/switch";
 import type {FC} from "react";
 
-import {useSwitch} from "@heroui/switch";
-import {cn} from "@heroui/theme";
-import {useIsSSR} from "@react-aria/ssr";
-import {VisuallyHidden} from "@react-aria/visually-hidden";
 import {useTheme} from "next-themes";
-import {useCallback} from "react";
+import {useCallback, useEffect, useState} from "react";
 
 import {Iconify} from "./iconify";
 
 export interface ThemeSwitchProps {
   className?: string;
-  classNames?: SwitchProps["classNames"];
 }
 
-export const ThemeToggle: FC<ThemeSwitchProps> = ({className, classNames}) => {
+export const ThemeToggle: FC<ThemeSwitchProps> = ({className}) => {
   const {setTheme, theme} = useTheme();
-  const isSSR = useIsSSR();
+  const [mounted, setMounted] = useState(false);
 
-  const currentTheme = isSSR ? "light" : theme;
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
-  const onChange = useCallback(() => {
-    setTheme(currentTheme === "light" ? "dark" : "light");
-  }, [setTheme, currentTheme]);
+  const currentTheme = mounted ? theme : "light";
+  const isLight = currentTheme === "light";
 
-  const {Component, getBaseProps, getInputProps, getWrapperProps, isSelected, slots} = useSwitch({
-    "aria-label": `Switch to ${currentTheme === "light" ? "dark" : "light"} mode`,
-    isSelected: currentTheme === "light",
-    onChange,
-  });
+  const onChange = useCallback(
+    (isSelected: boolean) => {
+      setTheme(isSelected ? "light" : "dark");
+    },
+    [setTheme],
+  );
 
   return (
-    <Component
-      {...getBaseProps({
-        className: cn(
-          "h-8 w-8 cursor-pointer p-1 transition-opacity hover:opacity-80",
-          className,
-          classNames?.base,
-        ),
-      })}
+    <button
+      type="button"
+      className={`h-8 w-8 cursor-pointer p-1 transition-opacity hover:opacity-80 flex items-center justify-center rounded-lg text-muted ${className || ""}`}
+      onClick={() => onChange(!isLight)}
+      aria-label={`Switch to ${isLight ? "dark" : "light"} mode`}
     >
-      <VisuallyHidden>
-        <input {...getInputProps()} />
-      </VisuallyHidden>
-      <div
-        {...getWrapperProps()}
-        className={slots.wrapper({
-          class: cn(
-            [
-              "h-auto w-auto",
-              "bg-transparent",
-              "rounded-lg",
-              "flex items-center justify-center",
-              "group-data-[selected=true]:bg-transparent",
-              "text-default-500! dark:text-default-400!",
-              "pt-px",
-              "px-0",
-              "mx-0",
-            ],
-            classNames?.wrapper,
-          ),
-        })}
-      >
-        {!isSelected || isSSR ? (
-          <Iconify icon="moon" width={16} />
-        ) : (
-          <Iconify icon="sun" width={16} />
-        )}
-      </div>
-    </Component>
+      {!isLight || !mounted ? (
+        <Iconify icon="moon" width={16} />
+      ) : (
+        <Iconify icon="sun" width={16} />
+      )}
+    </button>
   );
 };

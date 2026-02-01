@@ -1,16 +1,15 @@
 "use client";
 
-import {Button} from "@heroui/button";
-import {Input} from "@heroui/input";
-import {Popover, PopoverContent, PopoverTrigger} from "@heroui/popover";
-import {Select, SelectItem} from "@heroui/select";
-import {cn} from "@heroui/theme";
-import Link from "next/link";
+import type {Key} from "react-aria-components";
+
+import {Button, FieldError, Input, Label, ListBox, Popover, Select, TextField} from "@heroui/react";
+import NextLink from "next/link";
 import {useRouter} from "next/navigation";
 import posthog from "posthog-js";
 import {useEffect, useMemo, useState} from "react";
 
 import {Iconify} from "@/components/iconify";
+import {cn} from "@/lib/utils";
 
 // Moved from actions since it doesn't need to be a server action
 function normalizePackageSpecifier(input: string) {
@@ -154,7 +153,7 @@ export function PackageForm({
 }) {
   const router = useRouter();
   const [packageSpecifier, setPackageSpecifier] = useState(initialPackage);
-  const [timeRange, setTimeRange] = useState(initialTimeRange);
+  const [timeRange, setTimeRange] = useState<Key | null>(initialTimeRange);
   const [primaryColor, setPrimaryColor] = useState(initialPrimaryColor);
   const [secondaryColor, setSecondaryColor] = useState(initialSecondaryColor);
   const [hasManualColorSelection, setHasManualColorSelection] = useState(false);
@@ -212,7 +211,7 @@ export function PackageForm({
 
         const params = new URLSearchParams({
           package: normalizedPackageName,
-          timeRange,
+          timeRange: timeRange as string,
           primaryColor,
           secondaryColor,
         });
@@ -220,115 +219,123 @@ export function PackageForm({
       }}
     >
       <div className="flex gap-2">
-        <Input
-          id="package"
-          name="package"
-          label="NPM package"
-          placeholder="e.g. @heroui/react"
-          className="text-[1rem] flex-1"
-          classNames={{
-            inputWrapper: "dark:bg-default-100/60",
-          }}
-          autoCapitalize="off"
-          autoComplete="off"
-          autoCorrect="off"
-          isRequired
-          color={isPackageInvalid ? "danger" : "default"}
-          errorMessage={isPackageInvalid ? "Please enter a valid npm package name" : undefined}
+        <TextField
+          className="flex-1 flex flex-col gap-1"
           isInvalid={isPackageInvalid}
+          isRequired
+          name="package"
           value={packageSpecifier}
-          onValueChange={(value) => {
-            setHasManualColorSelection(false);
-            setPackageSpecifier(value);
-          }}
-          onFocus={(e) => {
-            e.target.select();
-          }}
-        />
-        <Select
-          label="Time range"
-          className="max-w-[150px]"
-          classNames={{
-            trigger: "dark:bg-default-100/60",
-          }}
-          selectedKeys={[timeRange]}
-          onSelectionChange={(keys) => setTimeRange(Array.from(keys)[0] as string)}
+          onChange={setPackageSpecifier}
         >
-          {timeRanges.map((range) => (
-            <SelectItem key={range.key}>{range.label}</SelectItem>
-          ))}
+          <Label>NPM package</Label>
+          <Input
+            autoCapitalize="off"
+            autoComplete="off"
+            autoCorrect="off"
+            placeholder="e.g. @heroui/react"
+            onFocus={(e) => {
+              e.target.select();
+            }}
+            onChange={(e) => {
+              setHasManualColorSelection(false);
+              setPackageSpecifier(e.target.value);
+            }}
+          />
+          {isPackageInvalid && <FieldError>Please enter a valid npm package name</FieldError>}
+        </TextField>
+        <Select
+          className="w-[150px] flex flex-col gap-1"
+          placeholder="Select"
+          value={timeRange}
+          onChange={(value) => setTimeRange(value)}
+        >
+          <Label>Time range</Label>
+          <Select.Trigger>
+            <Select.Value />
+            <Select.Indicator />
+          </Select.Trigger>
+          <Select.Popover>
+            <ListBox>
+              {timeRanges.map((range) => (
+                <ListBox.Item key={range.key} id={range.key} textValue={range.label}>
+                  {range.label}
+                  <ListBox.ItemIndicator />
+                </ListBox.Item>
+              ))}
+            </ListBox>
+          </Select.Popover>
         </Select>
       </div>
       <div className="flex items-center gap-2">
         <div className="flex gap-2">
-          <Popover placement="bottom">
-            <PopoverTrigger>
-              <Button isIconOnly variant="bordered" aria-label="Color Palette">
-                {primaryColor ? (
-                  <div
-                    className="w-5 h-5 rounded-full border-2 border-white/20"
-                    style={{backgroundColor: primaryColor}}
-                  />
-                ) : (
-                  <Iconify icon="palette" className="w-5 h-5" />
-                )}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="p-4">
-              <div className="flex flex-col gap-4">
-                <div className="text-sm font-medium">Quick Colors</div>
-                <div className="grid grid-cols-4 gap-2">
-                  {[
-                    {primary: "#22c55e", secondary: "#10b981"},
-                    {primary: "#3b82f6", secondary: "#2563eb"},
-                    {primary: "#f97316", secondary: "#ea580c"},
-                    {primary: "#a855f7", secondary: "#9333ea"},
-                    {primary: "#DADADA", secondary: "#A1A1AA"},
-                    {primary: "#eab308", secondary: "#ca8a04"},
-                    {primary: "#06b6d4", secondary: "#0891b2"},
-                    {primary: "#f25252", secondary: "#ef4444"},
-                  ].map((colors, idx) => {
-                    const isSelected =
-                      primaryColor === colors.primary && secondaryColor === colors.secondary;
+          <Popover>
+            <Button isIconOnly variant="outline" aria-label="Color Palette">
+              {primaryColor ? (
+                <div
+                  className="w-5 h-5 rounded-full border-2 border-white/20"
+                  style={{backgroundColor: primaryColor}}
+                />
+              ) : (
+                <Iconify icon="palette" className="w-5 h-5" />
+              )}
+            </Button>
+            <Popover.Content>
+              <Popover.Dialog>
+                <div className="flex flex-col gap-4">
+                  <div className="text-sm font-medium">Quick Colors</div>
+                  <div className="grid grid-cols-4 gap-2">
+                    {[
+                      {primary: "#22c55e", secondary: "#10b981"},
+                      {primary: "#3b82f6", secondary: "#2563eb"},
+                      {primary: "#f97316", secondary: "#ea580c"},
+                      {primary: "#a855f7", secondary: "#9333ea"},
+                      {primary: "#DADADA", secondary: "#A1A1AA"},
+                      {primary: "#eab308", secondary: "#ca8a04"},
+                      {primary: "#06b6d4", secondary: "#0891b2"},
+                      {primary: "#f25252", secondary: "#ef4444"},
+                    ].map((colors, idx) => {
+                      const isSelected =
+                        primaryColor === colors.primary && secondaryColor === colors.secondary;
 
-                    return (
-                      <button
-                        key={idx}
-                        type="button"
-                        data-selected={isSelected}
-                        className={cn("w-12 h-12 rounded-lg transition-all cursor-pointer", {
-                          "ring-2 ring-offset-2 ring-[var(--item-secondary-color)] ring-offset-content1":
-                            isSelected,
-                        })}
-                        style={{
-                          // @ts-expect-error it's ok
-                          "--item-primary-color": colors.primary,
-                          "--item-secondary-color": colors.secondary,
-                        }}
-                        onClick={() => {
-                          setHasManualColorSelection(true);
-                          setPrimaryColor(colors.primary);
-                          setSecondaryColor(colors.secondary);
-                        }}
-                      >
-                        <div
-                          className="h-1/2 rounded-t-lg"
-                          style={{backgroundColor: colors.primary}}
-                        />
-                        <div
-                          className="h-1/2 rounded-b-lg"
-                          style={{backgroundColor: colors.secondary}}
-                        />
-                      </button>
-                    );
-                  })}
+                      return (
+                        <button
+                          key={idx}
+                          type="button"
+                          data-selected={isSelected}
+                          className={cn("w-12 h-12 rounded-lg transition-all cursor-pointer", {
+                            "ring-2 ring-offset-2 ring-[var(--item-secondary-color)] ring-offset-surface":
+                              isSelected,
+                          })}
+                          style={{
+                            // @ts-expect-error it's ok
+                            "--item-primary-color": colors.primary,
+                            "--item-secondary-color": colors.secondary,
+                          }}
+                          onClick={() => {
+                            setHasManualColorSelection(true);
+                            setPrimaryColor(colors.primary);
+                            setSecondaryColor(colors.secondary);
+                          }}
+                        >
+                          <div
+                            className="h-1/2 rounded-t-lg"
+                            style={{backgroundColor: colors.primary}}
+                          />
+                          <div
+                            className="h-1/2 rounded-b-lg"
+                            style={{backgroundColor: colors.secondary}}
+                          />
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
-              </div>
-            </PopoverContent>
+              </Popover.Dialog>
+            </Popover.Content>
           </Popover>
         </div>
         <Button
-          variant="bordered"
+          variant="outline"
           type="submit"
           className="flex-1"
           isDisabled={isPackageInvalid || !normalizedPackageName}
@@ -336,9 +343,9 @@ export function PackageForm({
           Submit
         </Button>
       </div>
-      <div className="text-sm text-foreground-500 [&_a]:underline">
+      <div className="text-sm text-muted [&_a]:underline">
         Try{" "}
-        <Link
+        <NextLink
           href="?package=heroui-native&timeRange=2-years"
           onClick={() => {
             setHasManualColorSelection(false);
@@ -346,9 +353,9 @@ export function PackageForm({
           }}
         >
           heroui-native
-        </Link>{" "}
+        </NextLink>{" "}
         or{" "}
-        <Link
+        <NextLink
           href="?package=@heroui/react&timeRange=2-years"
           onClick={() => {
             setHasManualColorSelection(false);
@@ -356,7 +363,7 @@ export function PackageForm({
           }}
         >
           @heroui/react
-        </Link>
+        </NextLink>
       </div>
     </form>
   );

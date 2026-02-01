@@ -1,7 +1,7 @@
 /* eslint-disable import/order */
 import type {Metadata} from "next";
 
-import {Button} from "@heroui/button";
+import {Link} from "@heroui/react";
 
 import {GitHubIcon} from "@/components/github";
 import {Logo as HeroLogo} from "@/components/hero-logo";
@@ -35,7 +35,7 @@ export const metadata: Metadata = {
 export default function RootLayout({children}: {children: React.ReactNode}) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className="min-h-screen flex flex-col">
+      <body className="min-h-screen flex flex-col bg-background text-foreground">
         <Providers themeProps={{attribute: "class", defaultTheme: "dark"}}>
           <header className="w-full">
             <div className="container mx-auto px-4 py-3 flex justify-between items-center">
@@ -47,7 +47,7 @@ export default function RootLayout({children}: {children: React.ReactNode}) {
                   data-testid="geist-icon"
                   height="16"
                   strokeLinejoin="round"
-                  className="text-default-300"
+                  className="text-muted"
                   style={{width: "16px", height: "16px"}}
                   viewBox="0 0 16 16"
                   width="16"
@@ -64,21 +64,20 @@ export default function RootLayout({children}: {children: React.ReactNode}) {
               </div>
 
               <div className="flex items-center gap-2">
-                <Button
-                  variant="light"
-                  as="a"
+                <Link
                   href="https://github.com/heroui-inc/npm-video?ref=npmvideo.com"
                   target="_blank"
                   rel="noreferrer noopener"
-                  startContent={<GitHubIcon className="w-4 h-4" />}
+                  className="inline-flex items-center gap-2 px-3 py-2 text-sm rounded-lg hover:bg-default transition-colors"
                 >
+                  <GitHubIcon className="w-4 h-4" />
                   GitHub
-                </Button>
+                </Link>
                 <ThemeToggle />
               </div>
             </div>
           </header>
-          <main className="py-8 md:py-16 lg:py-20 flex-1 flex flex-col gap-8 justify-center items-center w-full px-4">
+          <main className="py-8 md:py-16 lg:py-20 flex-1 flex flex-col gap-8 justify-start items-center w-full px-4">
             {children}
           </main>
         </Providers>

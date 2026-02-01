@@ -2,8 +2,7 @@
 
 import type {Props} from "@/video/schema";
 
-import {Button} from "@heroui/button";
-import {Spinner} from "@heroui/spinner";
+import {Button, Spinner} from "@heroui/react";
 import {readableColor} from "color2k";
 import {useRouter} from "next/navigation";
 import posthog from "posthog-js";
@@ -37,6 +36,8 @@ export function GenerateButton({
     };
   }, []);
 
+  const isPending = state.type === "pending" || state.type === "started";
+
   if (inputProps && state.type === "done") {
     const packageName = inputProps.packageName ?? inputProps.displayName ?? "package";
 
@@ -57,7 +58,6 @@ export function GenerateButton({
         <input type="hidden" name="packageName" value={packageName} />
         <Button
           type="submit"
-          color="primary"
           className="font-medium w-full"
           style={
             primaryColor
@@ -76,8 +76,6 @@ export function GenerateButton({
 
   return (
     <Button
-      color="primary"
-      spinner={<Spinner size="sm" color="current" />}
       className="font-medium"
       style={
         primaryColor
@@ -150,12 +148,15 @@ export function GenerateButton({
           }
         }
       }}
-      isLoading={state.type === "pending" || state.type === "started"}
-      isDisabled={!inputProps || state.type === "pending" || state.type === "started"}
+      isPending={isPending}
+      isDisabled={!inputProps || isPending}
     >
-      {state.type === "pending" || state.type === "started"
-        ? "Generating video…"
-        : "Export MP4 video"}
+      {({isPending: buttonPending}) => (
+        <>
+          {buttonPending ? <Spinner color="current" size="sm" /> : null}
+          {isPending ? "Generating video…" : "Export MP4 video"}
+        </>
+      )}
     </Button>
   );
 }
