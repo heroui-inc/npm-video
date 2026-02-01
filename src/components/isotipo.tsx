@@ -1,8 +1,9 @@
+"use client";
+
 import type {Ref, SVGProps} from "react";
 
+import {cn} from "@heroui/react";
 import {forwardRef, memo} from "react";
-
-import {cn} from "@/lib/utils";
 
 const IconRender = (
   {className, height, white, ...props}: SVGProps<SVGSVGElement> & {white?: boolean},

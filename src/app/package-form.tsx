@@ -2,14 +2,13 @@
 
 import type {Key} from "react-aria-components";
 
-import {Button, FieldError, Input, Label, ListBox, Popover, Select, TextField} from "@heroui/react";
+import {Button, cn, FieldError, Input, Label, ListBox, Popover, Select, TextField} from "@heroui/react";
 import NextLink from "next/link";
 import {useRouter} from "next/navigation";
 import posthog from "posthog-js";
 import {useEffect, useMemo, useState} from "react";
 
 import {Iconify} from "@/components/iconify";
-import {cn} from "@/lib/utils";
 
 // Moved from actions since it doesn't need to be a server action
 function normalizePackageSpecifier(input: string) {

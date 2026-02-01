@@ -1,6 +1,8 @@
+"use client";
+
 import type {SVGProps} from "react";
 
-import {cn} from "@/lib/utils";
+import {cn} from "@heroui/react";
 
 import {Isotipo} from "./isotipo";
 
