@@ -1,8 +1,6 @@
 /* eslint-disable import/order */
 import type {Metadata} from "next";
 
-import {Link} from "@heroui/react";
-
 import {GitHubIcon} from "@/components/github";
 import {Logo as HeroLogo} from "@/components/hero-logo";
 import {ThemeToggle} from "@/components/theme-toggle";
@@ -64,7 +62,7 @@ export default function RootLayout({children}: {children: React.ReactNode}) {
               </div>
 
               <div className="flex items-center gap-2">
-                <Link
+                <a
                   href="https://github.com/heroui-inc/npm-video?ref=npmvideo.com"
                   target="_blank"
                   rel="noreferrer noopener"
@@ -72,7 +70,7 @@ export default function RootLayout({children}: {children: React.ReactNode}) {
                 >
                   <GitHubIcon className="w-4 h-4" />
                   GitHub
-                </Link>
+                </a>
                 <ThemeToggle />
               </div>
             </div>

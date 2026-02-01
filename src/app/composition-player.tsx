@@ -18,7 +18,7 @@ import {defaultProps} from "@/video/schema";
 export function CompositionPlayer({inputProps}: {inputProps: Partial<Props>}) {
   const divRef = useRef<HTMLDivElement>(null);
   const playerRef = useRef<PlayerRef>(null);
-  const [divWidth, divHeight] = useSize(divRef);
+  const [divWidth, divHeight] = useSize(divRef as React.RefObject<HTMLElement>);
   const [isVisible, setIsVisible] = useState(true);
 
   // Pause video when tab is not visible to prevent memory accumulation
